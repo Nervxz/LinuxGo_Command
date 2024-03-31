@@ -92,8 +92,9 @@ func cd(args []string) error {
 // Find command
 func find(args []string, out io.Writer) error {
 	if len(args) < 2 {
-		return errors.New("Reinput: find <path> <expression>")
+		return errors.New("Re-enter: find <path> <expression>")
 	}
+
 	root := args[0]
 	expression := args[1]
 
@@ -102,9 +103,8 @@ func find(args []string, out io.Writer) error {
 			return err
 		}
 
-		if filepath.Base(path) == expression || filepath.Ext(path) == expression {
+		if match(path, expression) {
 			fmt.Fprintln(out, path)
-			return filepath.SkipDir
 		}
 
 		return nil
