@@ -15,7 +15,7 @@ func main() {
 	repl(os.Stdin, os.Stdout)
 }
 
-// read input
+// Read input
 func repl(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 	prompt := ">"
@@ -37,7 +37,7 @@ func repl(in io.Reader, out io.Writer) {
 	}
 }
 
-// implement command
+// Implement command
 func inputCommand(line string, out io.Writer) error {
 
 	if line == "exit" || line == "quit" {
@@ -59,7 +59,7 @@ func inputCommand(line string, out io.Writer) error {
 	}
 }
 
-// ls command
+// Ls command
 func ls(out io.Writer) error {
 	files, err := os.ReadDir(".")
 	if err != nil {
@@ -71,7 +71,7 @@ func ls(out io.Writer) error {
 	return nil
 }
 
-// pwd command
+// Pwd command
 func pwd(out io.Writer) error {
 	pwd, err := os.Getwd()
 	if err != nil {
@@ -81,7 +81,7 @@ func pwd(out io.Writer) error {
 	return nil
 }
 
-// cd command
+// Cd command
 func cd(args []string) error {
 	if len(args) < 1 {
 		return errors.New("cd: path")
@@ -89,7 +89,7 @@ func cd(args []string) error {
 	return os.Chdir(args[0])
 }
 
-// find command
+// Find command
 func find(args []string, out io.Writer) error {
 	if len(args) < 2 {
 		return errors.New("Reinput: find <path> <expression>")
