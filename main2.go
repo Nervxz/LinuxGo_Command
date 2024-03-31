@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -36,8 +37,7 @@ func repl(in io.Reader, out io.Writer) {
 	}
 }
 
-// ls,cd,pwd
-
+// implement command
 func inputCommand(line string, out io.Writer) error {
 
 	if line == "exit" || line == "quit" {
@@ -52,11 +52,14 @@ func inputCommand(line string, out io.Writer) error {
 		return pwd(out)
 	case "cd":
 		return cd(args[1:])
+	case "find":
+		return find(args[1:], out)
 	default:
 		return fmt.Errorf("Please Reinput Command")
 	}
 }
 
+// ls command
 func ls(out io.Writer) error {
 	files, err := os.ReadDir(".")
 	if err != nil {
@@ -68,6 +71,7 @@ func ls(out io.Writer) error {
 	return nil
 }
 
+// pwd command
 func pwd(out io.Writer) error {
 	pwd, err := os.Getwd()
 	if err != nil {
@@ -77,6 +81,7 @@ func pwd(out io.Writer) error {
 	return nil
 }
 
+// cd command
 func cd(args []string) error {
 	if len(args) < 1 {
 		return errors.New("cd: path")
@@ -84,27 +89,46 @@ func cd(args []string) error {
 	return os.Chdir(args[0])
 }
 
-/*
-func inputCommand(line string, out io.Writer) error {
-
-	if line == "exit" || line == "quit" {
-		os.Exit(0)
+// find command
+func find(args []string, out io.Writer) error {
+	if len(args) < 2 {
+		return errors.New("Reinput: find <path> <expression>")
 	}
+	root := args[0]
+	expression := args[1]
 
-	args := strings.Fields(line)
-	switch args[0] {
-	case "cd":
-		if len(args) < 2 {
-			return errors.New("cd: path")
+	return filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
 		}
-		return os.Chdir(args[1])
 
-	default:
-		cmd := exec.Command(args[0], args[1:]...)
-		cmd.Stderr = os.Stderr
-		cmd.Stdout = out
+		if filepath.Base(path) == expression || filepath.Ext(path) == expression {
+			fmt.Fprintln(out, path)
+			return filepath.SkipDir
+		}
 
-		return cmd.Run()
-	}
+		return nil
+	})
 }
+
+func match(path string, expression string) bool {
+	if expression == "*" {
+		// Match any file or directory
+		return true
+	}
+
+	if strings.HasPrefix(expression, ".") {
+		// Match extension
+		return filepath.Ext(path) == expression
+	}
+
+	// Match filename
+	return filepath.Base(path) == expression
+}
+
+/*
+ use find + directory + * to search all file in directory ex : find /home/ *
+ use find + directory + extension ex :  find home/nervx .txt
+ use find + directory + name of search file ex : find /home/nervx main2.go
+
 */
