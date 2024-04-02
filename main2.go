@@ -161,7 +161,6 @@ func repl(in io.Reader, out io.Writer) {
 		if !scanned {
 			return
 		}
-
 		line := scanner.Text()
 		if line == "" {
 			continue
