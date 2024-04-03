@@ -189,7 +189,7 @@ func inputCommand(line string, out io.Writer) error {
 	case "find":
 		return find(args[1:], out)
 	default:
-		return fmt.Errorf("Please Reinput Command")
+		return fmt.Errorf("please reinput command")
 	}
 }
 
@@ -226,7 +226,7 @@ func cd(args []string) error {
 // Find command
 func find(args []string, out io.Writer) error {
 	if len(args) < 2 {
-		return errors.New("Re-enter: find <path> <expression>")
+		return errors.New("re-enter: find <path> <expression>")
 	}
 
 	root := args[0]
@@ -245,3 +245,7 @@ func find(args []string, out io.Writer) error {
 		return nil
 	})
 }
+
+/*
+/home/nervx/go/bin/golangci-lint run
+*/
