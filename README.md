@@ -31,3 +31,8 @@
 - buid+ test:
 
 [https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go](https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go?fbclid=IwAR3qJuJ_SXZj-cxTmU7Lh9BMqoqvH87n6_jxhSNXfC8ET0fygdXqzpY8zWU_aem_AVd2dPK_F1JB5XS4IEG-QTFPqtnLDGHyZKXjXBQOddXfEWNXOgv7HrjLFs_KCz7GKTwXAh4ak3mF7boiNtCrLhPt)
+
+
+/*
+/home/nervx/go/bin/golangci-lint run
+*/

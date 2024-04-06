@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -156,9 +157,41 @@ func TestNonExistentDirectoryCd(t *testing.T) {
 	}
 }
 
-/*
-go test
-go test -cover
-go test -cover -coverprofile=coverage.prof
-go tool cover -html=coverage.prof -o coverage.html
-*/
+// Benchmark functions
+func BenchmarkLs(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		err := ls(io.Discard)
+		if err != nil {
+			// Handle the error appropriately (e.g., log, exit)
+			b.Errorf("Error from ls: %v", err)
+		}
+	}
+}
+
+func BenchmarkPwd(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		err := pwd(io.Discard)
+		if err != nil {
+			// Handle the error appropriately (e.g., log, exit)
+			b.Errorf("Error from pwd: %v", err)
+		}
+	}
+}
+
+func BenchmarkCd(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		err := cd([]string{"path"})
+		if err != nil {
+			b.Errorf("Error from cd: %v", err)
+		}
+	}
+}
+
+func BenchmarkFind(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		err := find([]string{"path", "expression"}, io.Discard)
+		if err != nil {
+			b.Errorf("Error from find: %v", err)
+		}
+	}
+}
