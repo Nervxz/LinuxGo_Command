@@ -180,7 +180,7 @@ func BenchmarkPwd(b *testing.B) {
 
 func BenchmarkCd(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		err := cd([]string{"path"})
+		err := cd([]string{"."}) // Change to the current directory
 		if err != nil {
 			b.Errorf("Error from cd: %v", err)
 		}
@@ -188,8 +188,13 @@ func BenchmarkCd(b *testing.B) {
 }
 
 func BenchmarkFind(b *testing.B) {
+	// Create a temporary directory to ensure a consistent path for testing
+	// and avoid errors related to non-existent directories.
+	tempDir := b.TempDir()
+
 	for n := 0; n < b.N; n++ {
-		err := find([]string{"path", "expression"}, io.Discard)
+		// Use the created temporary directory for testing
+		err := find([]string{tempDir, "expression"}, io.Discard)
 		if err != nil {
 			b.Errorf("Error from find: %v", err)
 		}
