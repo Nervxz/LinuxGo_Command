@@ -195,6 +195,7 @@ func BenchmarkFind(b *testing.B) {
 	}
 	defer f.Close()
 
+	// Start profiling
 	pprof.StartCPUProfile(f)
 	defer pprof.StopCPUProfile()
 
@@ -235,28 +236,3 @@ func createTestFiles(dir string) {
 		defer f.Close()
 	}
 }
-
-/*
-func BenchmarkFind(b *testing.B) {
-	// Create a CPU profile file
-	f, err := os.Create("cpu.prof")
-	if err != nil {
-		b.Fatal("could not create CPU profile: ", err)
-	}
-	defer f.Close()
-
-	// Start CPU profiling
-	if err := pprof.StartCPUProfile(f); err != nil {
-		b.Fatal("could not start CPU profile: ", err)
-	}
-	defer pprof.StopCPUProfile()
-
-	// Run the benchmark
-	for i := 0; i < b.N; i++ {
-		// You can adjust the parameters passed to find for benchmarking purposes
-		// For example:
-		// find([]string{"/path/to/search"}, os.Stdout)
-		// Or you can directly call the find function with its parameters if needed.
-	}
-}
-*/
