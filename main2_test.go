@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime/pprof"
 	"strings"
 	"testing"
 )
@@ -188,15 +189,74 @@ func BenchmarkCd(b *testing.B) {
 }
 
 func BenchmarkFind(b *testing.B) {
-	// Create a temporary directory to ensure a consistent path for testing
-	// and avoid errors related to non-existent directories.
-	tempDir := b.TempDir()
+	f, err := os.Create("cpu.prof")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
 
-	for n := 0; n < b.N; n++ {
-		// Use the created temporary directory for testing
-		err := find([]string{tempDir, "expression"}, io.Discard)
-		if err != nil {
-			b.Errorf("Error from find: %v", err)
-		}
+	pprof.StartCPUProfile(f)
+	defer pprof.StopCPUProfile()
+
+	// Create a temporary directory for benchmarking
+	tempDir := createTempDir()
+	defer os.RemoveAll(tempDir)
+
+	// Populate the directory with some files for benchmarking
+	createTestFiles(tempDir)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		// Run the find function
+		find([]string{tempDir, "txt"}, os.Stdout)
 	}
 }
+
+// Function to create a temporary directory for benchmarking
+func createTempDir() string {
+	tempDir := "temp_dir"
+	err := os.Mkdir(tempDir, 0755)
+	if err != nil {
+		panic(err)
+	}
+	return tempDir
+}
+
+// Function to create test files in the temporary directory for benchmarking
+func createTestFiles(dir string) {
+	files := []string{"file1.txt", "file2.txt", "file3.txt", "file4.txt"}
+	for _, file := range files {
+		filePath := filepath.Join(dir, file)
+		f, err := os.Create(filePath)
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+	}
+}
+
+/*
+func BenchmarkFind(b *testing.B) {
+	// Create a CPU profile file
+	f, err := os.Create("cpu.prof")
+	if err != nil {
+		b.Fatal("could not create CPU profile: ", err)
+	}
+	defer f.Close()
+
+	// Start CPU profiling
+	if err := pprof.StartCPUProfile(f); err != nil {
+		b.Fatal("could not start CPU profile: ", err)
+	}
+	defer pprof.StopCPUProfile()
+
+	// Run the benchmark
+	for i := 0; i < b.N; i++ {
+		// You can adjust the parameters passed to find for benchmarking purposes
+		// For example:
+		// find([]string{"/path/to/search"}, os.Stdout)
+		// Or you can directly call the find function with its parameters if needed.
+	}
+}
+*/

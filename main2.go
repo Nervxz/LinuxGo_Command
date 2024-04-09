@@ -54,6 +54,7 @@ func inputCommand(line string, out io.Writer) error {
 		return cd(args[1:])
 	case "find":
 		return find(args[1:], out)
+
 	default:
 		return errors.New("please re_input command") // replace fmt.Errorf with errors.New
 	}
