@@ -2,11 +2,13 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"runtime/pprof"
 	"strings"
+	"sync"
 	"testing"
 )
 
@@ -203,6 +205,80 @@ func BenchmarkFind(b *testing.B) {
 	tempDir := createTempDir()
 	defer os.RemoveAll(tempDir)
 
+	// Populate the directory with 1 million test files
+	createTestFiles(tempDir)
+	b.ResetTimer()
+
+	// Run the find function 10 times (adjust as needed)
+	var wg sync.WaitGroup
+	wg.Add(b.N)
+
+	for i := 0; i < b.N; i++ {
+		go func() {
+			defer wg.Done()
+			find([]string{tempDir, "txt"}, os.Stdout)
+		}()
+	}
+
+	wg.Wait()
+}
+
+// Function to create a temporary directory for benchmarking
+func createTempDir() string {
+	tempDir := "temp_dir"
+	err := os.Mkdir(tempDir, 0755)
+	if err != nil {
+		panic(err)
+	}
+	return tempDir
+}
+
+// Function to create test files in the temporary directory for benchmarking
+
+func createTestFiles(dir string) {
+	numFiles := 1_000_000 // 1 million files
+
+	for i := 0; i < numFiles; i++ {
+		fileName := fmt.Sprintf("file%d.txt", i)
+		filePath := filepath.Join(dir, fileName)
+		f, err := os.Create(filePath)
+		if err != nil {
+			panic(err)
+		}
+		f.Close()
+	}
+}
+
+/* old
+func createTestFiles(dir string) {
+	numFiles := 1_000_000 // 1 million files
+	for i := 0; i < numFiles; i++ {
+		fileName := fmt.Sprintf("file%d.txt", i)
+		filePath := filepath.Join(dir, fileName)
+		f, err := os.Create(filePath)
+		if err != nil {
+			panic(err)
+		}
+		f.Close()
+	}
+}
+*/
+/* Old
+func BenchmarkFind(b *testing.B) {
+	f, err := os.Create("cpu.prof")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	// Start profiling
+	pprof.StartCPUProfile(f)
+	defer pprof.StopCPUProfile()
+
+	// Create a temporary directory for benchmarking
+	tempDir := createTempDir()
+	defer os.RemoveAll(tempDir)
+
 	// Populate the directory with some files for benchmarking
 	createTestFiles(tempDir)
 
@@ -236,3 +312,4 @@ func createTestFiles(dir string) {
 		defer f.Close()
 	}
 }
+*/

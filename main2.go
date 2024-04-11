@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 func main() {
@@ -97,6 +98,7 @@ func cd(args []string) error {
 // use find + directory + name of search file ex : find /home/example main2.go
 
 */
+/*
 // Find command
 func find(args []string, out io.Writer) error {
 	if len(args) < 2 {
@@ -114,6 +116,36 @@ func find(args []string, out io.Writer) error {
 		// Check if filename or path
 		if strings.Contains(strings.ToLower(path), strings.ToLower(expression)) {
 			fmt.Fprintln(out, path)
+		}
+
+		return nil
+	})
+}
+*/
+
+// Find function
+
+func find(args []string, out io.Writer) error {
+	if len(args) < 2 {
+		return errors.New("re-enter: find <path> <expression>")
+	}
+
+	root := args[0]
+	expression := args[1]
+
+	var wg sync.WaitGroup //
+
+	return filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !info.IsDir() && strings.Contains(strings.ToLower(info.Name()), strings.ToLower(expression)) {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				fmt.Fprintln(out, path)
+			}()
 		}
 
 		return nil
